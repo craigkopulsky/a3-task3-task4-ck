@@ -26,9 +26,53 @@ urchins_data <- read_csv(here("data", "urchins.csv")) %>%  # reading in urchins 
 naples_reef_urchins <- urchins_data %>% 
   mutate(date = mdy(date)) %>% 
   mutate(year = year(date), month = month(date)) %>% 
-  filter(site == "NAPL" | common_name == "Purple Urchin" | year == "2010" | month == "1")
+  filter(site == "NAPL" & common_name == "Purple Urchin" & year == 2010 & month == 1)
 ```
 
 
+Histograms
+```{r}
+ggplot(data = naples_reef_urchins, aes(size)) + 
+  geom_histogram(bins = 10) + # creating histogram with the urchins dataset showing distributions of sizes among Purple Urchins from Naples Reef, only including data from January 2010
+  facet_wrap(~treatment) + # creating faceted histogram to show a comparison of size distributions between the two treatment conditions, Control and Annual
+  labs(x = "Urchin Diameter (cm), measured to the nearest .5cm",
+       y = "Total Urchins") # updating labels
+```
+Key Takeaways: xxxxx
 
+
+```{r}
+ggplot(data = naples_reef_urchins, aes(sample = size)) + 
+  geom_qq() + # creating qq plot with the urchins dataset showing distributions of sizes among Purple Urchins from Naples Reef, only including data from January 2010
+  facet_wrap(~treatment) # creating faceted histogram to show a comparison of size distributions between the two treatment conditions, Control and Annual
+```
+Key takeaways: xxxxxxxx
+
+
+```{r}
+naples_reef_summary <- naples_reef_urchins %>% 
+  group_by(treatment) %>% 
+  summarize(mean = mean(size), median = median(size), sd = sd(size), n = n())
+  kbl(naples_reef_summary) %>% 
+  kable_styling(full_width = FALSE, "hover")
+
+```
+
+Comparing mean sizes between treatment groups with two-sample t-test
+
+```{r}
+annual_sample <- naples_reef_urchins %>% 
+  filter(treatment == "ANNUAL") %>% 
+  pull(size)
+
+control_sample <- naples_reef_urchins %>% 
+  filter(treatment == "CONTROL") %>% 
+  pull(size)
+
+t.test(x = annual_sample, control_sample)
+```
+
+p value of 0.2536 -> there is a 25% chance that we would randomly draw two samples with means at least this far apart from each other if they were drawn from populations with the same means
+
+not enough evidence to reject the null hypothesis that the two samples come from populations with the same mean
 
