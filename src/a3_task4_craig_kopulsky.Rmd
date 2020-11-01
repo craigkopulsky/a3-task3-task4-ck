@@ -1,0 +1,34 @@
+---
+title: "a3_task4_craig_kopulsky"
+author: "Craig Kopulsky"
+date: "11/1/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(lubridate)
+library(here)
+library(janitor)
+library(kableExtra)
+```
+
+
+```{r}
+urchins_data <- read_csv(here("data", "urchins.csv")) %>%  # reading in urchins data
+  clean_names() # converting variables to lowercase snake case
+```
+
+
+```{r}
+# creating subset of urchins data focusing on Naples Reef
+naples_reef_urchins <- urchins_data %>% 
+  mutate(date = mdy(date)) %>% 
+  mutate(year = year(date), month = month(date)) %>% 
+  filter(site == "NAPL" | common_name == "Purple Urchin" | year == "2010" | month == "1")
+```
+
+
+
+

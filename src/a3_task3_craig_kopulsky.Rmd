@@ -17,7 +17,7 @@ library(kableExtra)
 
 ```{r}
 urchins_data <- read_csv(here("data", "urchins.csv")) %>%  # reading in urchins data
-  clean_names() # converting to lowercase snake case
+  clean_names() # converting variables to lowercase snake case
 ```
 
 
