@@ -20,17 +20,20 @@ urchins_data <- read_csv(here("data", "urchins.csv")) %>%  # reading in urchins 
   clean_names() # converting variables to lowercase snake case
 ```
 
+## Data Wrangling
 
 ```{r}
 # creating subset of urchins data focusing on Naples Reef
-naples_reef_urchins <- urchins_data %>% 
-  mutate(date = mdy(date)) %>% 
-  mutate(year = year(date), month = month(date)) %>% 
-  filter(site == "NAPL" & common_name == "Purple Urchin" & year == 2010 & month == 1)
+naples_reef_urchins <- urchins_data %>% # creating naples_reef_urchins from urchins_data dataset
+  mutate(date = mdy(date)) %>% # creating a column for date in mdy form
+  mutate(year = year(date), month = month(date)) %>% # creating separate columns for year and month
+  filter(site == "NAPL" & common_name == "Purple Urchin" & year == 2010 & month == 1) # filtering dataset by site, common name, and date
 ```
 
 
-Histograms
+## Exploratory Histograms
+Exploring differences in size distributions among purple urchins for annual and control treatments
+
 ```{r}
 ggplot(data = naples_reef_urchins, aes(size)) + 
   geom_histogram(bins = 10) + # creating histogram with the urchins dataset showing distributions of sizes among Purple Urchins from Naples Reef, only including data from January 2010
@@ -38,41 +41,46 @@ ggplot(data = naples_reef_urchins, aes(size)) +
   labs(x = "Urchin Diameter (cm), measured to the nearest .5cm",
        y = "Total Urchins") # updating labels
 ```
-Key Takeaways: xxxxx
+
+Key Takeaways: Looking at the histograms, it appears that both samples have a roughly normal distribution with a slight skew to the left and relatively similar variability.
 
 
 ```{r}
 ggplot(data = naples_reef_urchins, aes(sample = size)) + 
-  geom_qq() + # creating qq plot with the urchins dataset showing distributions of sizes among Purple Urchins from Naples Reef, only including data from January 2010
-  facet_wrap(~treatment) # creating faceted histogram to show a comparison of size distributions between the two treatment conditions, Control and Annual
+  geom_qq() + # creating qq plot with the urchins dataset showing sample quantiles relative to theorhetical quantiles among Purple Urchins from Naples Reef, only including data from January 2010
+  facet_wrap(~treatment) + #adding in theoretical line of normality
+  stat_qq_line() # creating faceted qq plot to show a comparison of size distributions between the two treatment conditions, Control and Annual
 ```
-Key takeaways: xxxxxxxx
+
+Key takeaways: The qq plots show that both samples are skewed slightly to the left and not too close to normal.
 
 
 ```{r}
-naples_reef_summary <- naples_reef_urchins %>% 
-  group_by(treatment) %>% 
-  summarize(mean = mean(size), median = median(size), sd = sd(size), n = n())
+naples_reef_summary <- naples_reef_urchins %>% # creating summary table naples_reef_summary using naples_reef_urchins data set
+  group_by(treatment) %>% # grouping by treatment
+  summarize(mean = mean(size), median = median(size), sd = sd(size), n = n()) # including mean, median, sd, and sample size in summary table
   kbl(naples_reef_summary) %>% 
-  kable_styling(full_width = FALSE, "hover")
+  kable_styling(full_width = FALSE, "hover") # adding styling to the summary table
 
 ```
 
 Comparing mean sizes between treatment groups with two-sample t-test
 
 ```{r}
-annual_sample <- naples_reef_urchins %>% 
-  filter(treatment == "ANNUAL") %>% 
-  pull(size)
+annual_sample <- naples_reef_urchins %>% # creating vector annual_sample from naples_reef_urchins data set to use in t-test
+  filter(treatment == "ANNUAL") %>% # filtering to include on annual treatment
+  pull(size) # pulling the size data to create the vector
 
-control_sample <- naples_reef_urchins %>% 
-  filter(treatment == "CONTROL") %>% 
-  pull(size)
+control_sample <- naples_reef_urchins %>% # creating vector control_sample from naples_reef_urchins data set to use in t-test
+  filter(treatment == "CONTROL") %>% # filtering to include on annual treatment
+  pull(size) # pulling the size data to create the vector
 
-t.test(x = annual_sample, control_sample)
+t.test(x = annual_sample, control_sample) # running t-test to compare annual and control sample means
 ```
 
-p value of 0.2536 -> there is a 25% chance that we would randomly draw two samples with means at least this far apart from each other if they were drawn from populations with the same means
+The mean diameter for the annual treatment sample (3.9 cm) is about 5% larger than the mean diameter for the control treatment sample (3.7 cm). There is slightly more variability in the annual treatment sample (.97 sd) than the control treatment sample (.87 sd).
 
-not enough evidence to reject the null hypothesis that the two samples come from populations with the same mean
+The two sample t-test comparing the means of the two samples yields a p value of 0.2536 which indicates there is a 25% chance that we would randomly draw two samples with means at least this far apart from each other if they were drawn from populations with the same means.
+
+This p value is  relatively large. Therefore, there is not enough evidence to reject the null hypothesis that the two samples come from populations with the same mean.
 
