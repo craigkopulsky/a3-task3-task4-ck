@@ -14,15 +14,15 @@ library(janitor)
 library(kableExtra)
 ```
 
+## Data Wrangling
 
-```{r}
+```{r, message = FALSE}
 urchins_data <- read_csv(here("data", "urchins.csv")) %>%  # reading in urchins data
   clean_names() # converting variables to lowercase snake case
 ```
 
-## Data Wrangling
 
-```{r}
+```{r, message = FALSE}
 # creating subset of urchins data focusing on Naples Reef
 naples_reef_urchins <- urchins_data %>% # creating naples_reef_urchins from urchins_data dataset
   mutate(date = mdy(date)) %>% # creating a column for date in mdy form
@@ -34,7 +34,7 @@ naples_reef_urchins <- urchins_data %>% # creating naples_reef_urchins from urch
 ## Exploratory Histograms
 Exploring differences in size distributions among purple urchins for annual and control treatments
 
-```{r}
+```{r, message = FALSE}
 ggplot(data = naples_reef_urchins, aes(size)) + 
   geom_histogram(bins = 10) + # creating histogram with the urchins dataset showing distributions of sizes among Purple Urchins from Naples Reef, only including data from January 2010
   facet_wrap(~treatment) + # creating faceted histogram to show a comparison of size distributions between the two treatment conditions, Control and Annual
@@ -42,20 +42,20 @@ ggplot(data = naples_reef_urchins, aes(size)) +
        y = "Total Urchins") # updating labels
 ```
 
-Key Takeaways: Looking at the histograms, it appears that both samples have a roughly normal distribution with a slight skew to the left and relatively similar variability.
+Key Takeaways: Looking at the histograms, it appears that both samples have a roughly normal distribution with a slight skew to the left and relatively similar data spread.
 
 
-```{r}
+```{r, message = FALSE}
 ggplot(data = naples_reef_urchins, aes(sample = size)) + 
   geom_qq() + # creating qq plot with the urchins dataset showing sample quantiles relative to theorhetical quantiles among Purple Urchins from Naples Reef, only including data from January 2010
   facet_wrap(~treatment) + #adding in theoretical line of normality
   stat_qq_line() # creating faceted qq plot to show a comparison of size distributions between the two treatment conditions, Control and Annual
 ```
 
-Key takeaways: The qq plots show that both samples are skewed slightly to the left and not too close to normal.
+Key takeaways: The qq plots show that both samples are skewed slightly to the left, since data points associated with the lower quantiles of the sample are above where they would be assuming a normal distribution, and data points associated with the upper quantiles of the sample are below where they would be assuming a normal distribution. Despite this skew to the left, the samples are both close to normal.
 
 
-```{r}
+```{r, message = FALSE}
 naples_reef_summary <- naples_reef_urchins %>% # creating summary table naples_reef_summary using naples_reef_urchins data set
   group_by(treatment) %>% # grouping by treatment
   summarize(mean = mean(size), median = median(size), sd = sd(size), n = n()) # including mean, median, sd, and sample size in summary table
@@ -66,7 +66,7 @@ naples_reef_summary <- naples_reef_urchins %>% # creating summary table naples_r
 
 Comparing mean sizes between treatment groups with two-sample t-test
 
-```{r}
+```{r, message = FALSE}
 annual_sample <- naples_reef_urchins %>% # creating vector annual_sample from naples_reef_urchins data set to use in t-test
   filter(treatment == "ANNUAL") %>% # filtering to include on annual treatment
   pull(size) # pulling the size data to create the vector
@@ -78,9 +78,9 @@ control_sample <- naples_reef_urchins %>% # creating vector control_sample from 
 t.test(x = annual_sample, control_sample) # running t-test to compare annual and control sample means
 ```
 
-The mean diameter for the annual treatment sample (3.9 cm) is about 5% larger than the mean diameter for the control treatment sample (3.7 cm). There is slightly more variability in the annual treatment sample (.97 sd) than the control treatment sample (.87 sd).
+The mean diameter for the annual treatment sample (3.9 cm) is about 5% larger than the mean diameter for the control treatment sample (3.7 cm). There is slightly more data spread in the annual treatment sample (.97 sd) than the control treatment sample (.87 sd).
 
-The two sample t-test comparing the means of the two samples yields a p value of 0.2536 which indicates there is a 25% chance that we would randomly draw two samples with means at least this far apart from each other if they were drawn from populations with the same means.
+The two sample t-test comparing the means of the two samples yields a p value of 0.2536 which indicates there is about a 25% chance that we would randomly draw two samples with means at least this far apart from each other if they were drawn from populations with the same means.
 
 This p value is  relatively large. Therefore, there is not enough evidence to reject the null hypothesis that the two samples come from populations with the same mean.
 

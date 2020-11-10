@@ -14,8 +14,9 @@ library(janitor)
 library(kableExtra)
 ```
 
+# Data Wrangling
 
-```{r}
+```{r, message = FALSE}
 urchins_data <- read_csv(here("data", "urchins.csv")) %>%  # reading in urchins data
   clean_names() # converting variables to lowercase snake case
 ```
@@ -27,7 +28,7 @@ Including data from all sites and for both treatments
 ## Exploratory data visualization
 Comparing the distribution of sizes between purple and red urchins using histograms and box plots
 
-```{r}
+```{r, message = FALSE}
 ggplot(data = urchins_data, aes(size)) + # creating histogram with the urchins data set showing distributions of sizes
   geom_histogram() +
   facet_wrap(~common_name) + # creating faceted histogram to show a comparison of size distributions between purple urchins and red urchins
@@ -35,7 +36,7 @@ ggplot(data = urchins_data, aes(size)) + # creating histogram with the urchins d
        y = "Total Urchins") # updating labels
 ```
 
-```{r}
+```{r, message = FALSE}
 ggplot(data = urchins_data, aes(x = common_name, y = size)) +
   geom_boxplot() + # creating box plot with urchins data set with the urchins dataset showing distribution of sizes
   labs(x = "Common Name", 
@@ -45,7 +46,7 @@ ggplot(data = urchins_data, aes(x = common_name, y = size)) +
 ## Descriptive statistics table
 Summary tables for purple and red urchins
 
-```{r}
+```{r, message = FALSE}
 urchins_summary <- urchins_data %>% # creating summary table urchins_summary using urchins data set
   group_by(common_name) %>% # grouping by common_name
   summarize(mean = mean(size), median = median(size), sd = sd(size), n = n()) # adding means, medians, standard deviations, and sample sizes for each group to summary table
@@ -57,9 +58,9 @@ urchins_summary <- urchins_data %>% # creating summary table urchins_summary usi
 ## Summary of exploratory analysis
 Red urchins appear to be larger than purple urchins on average, as the mean diameter for the red urchins sample (6.8 cm) is larger than the mean diameter for the purple urchins sample (4.5 cm). This mean diameter for the red urchins sample is about 51% larger than the mean diameter for the purple urchins sample. There is more variability in the red urchins sample as evidenced by the sd for that sample (1.9) compared to the sd for the purple urchins sample (1.2).
 
-# **Section 2** Exploration of purple urchin counts by size and year
+# **Section 2** Exploration of purple urchin counts by location and year
 
-```{r}
+```{r, message = FALSE}
 # creating subset of urchins data focusing on purple urchins
 purple_urchins <- urchins_data %>% # creating data set purple_urchins from urchins_data
   filter(common_name == "Purple Urchin") %>% # filtering by common_name to include only purple urchins
@@ -74,16 +75,18 @@ purple_urchins <- urchins_data %>% # creating data set purple_urchins from urchi
   )) # adding a column site_full which contains full site names
 ```
 
-```{r}
+```{r, message = FALSE}
 # creating summary table containing total number of purple urchins observed by site and year
 purple_urchins_summary <- purple_urchins %>% 
   group_by(site_full, year) %>% 
   summarize(n = n())
 ```
 
-```{r}
+```{r, message = FALSE}
 #creating exploratory graph of counts of purple urchins recorded at each site over time by year
 ggplot(purple_urchins_summary, aes(x = year, y = n, color = site_full)) +
-  geom_point()
+  geom_point() +
+  geom_line() +
+  scale_x_continuous(breaks=seq(2008,2020,1))
 ```
 
